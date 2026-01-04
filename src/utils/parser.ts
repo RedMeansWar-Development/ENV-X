@@ -1,23 +1,62 @@
-export function parseValue<T>(raw: string, type: string): T {
+export function parseValue<T>(raw: string, type: string | undefined): T {
+    const value = raw.trim();
+
+    if (value === '') {
+        throw new Error('[ENV-X] Empty value is not allowed');
+    }
+
     switch (type) {
-        case 'number': return Number(raw) as unknown as T;
-        case 'boolean': return (raw === 'true') as unknown as T;
-        case 'object': return JSON.parse(raw) as T;
-        case 'array':
-            if (raw.trim().startsWith('[')) 
-                return JSON.parse(raw) as T;
-            
-            return raw.split(',').map((v) => v.trim()) as unknown as T;
-        case 'map':
+        case 'number': {
+            const num = Number(value);
+            if (Number.isNaN(num)) {
+                throw new Error(`[ENV-X] Invalid number: "${raw}"`);
+            }
+            return num as unknown as T;
+        }
+
+        case 'boolean': {
+            if (value !== 'true' && value !== 'false') {
+                throw new Error(`[ENV-X] Invalid boolean: "${raw}" (expected true|false)`);
+            }
+            return (value === 'true') as unknown as T;
+        }
+
+        case 'object': {
+            try {
+                return JSON.parse(value) as T;
+            } catch {
+                throw new Error(`[ENV-X] Invalid JSON object: "${raw}"`);
+            }
+        }
+
+        case 'array': {
+            try {
+                if (value.startsWith('[')) {
+                    return JSON.parse(value) as T;
+                }
+                return value.split(',').map(v => v.trim()) as unknown as T;
+            } catch {
+                throw new Error(`[ENV-X] Invalid array: "${raw}"`);
+            }
+        }
+
+        case 'map': {
             const map = new Map<string, string>();
-            
-            raw.split(',').forEach((pair) => {
-                const [k, v] = pair.split(':').map((p) => p.trim());
-                if (k) map.set(k, v ?? '');
-            });
+            const pairs = value.split(',');
+
+            for (const pair of pairs) {
+                const [k, v] = pair.split(':');
+                if (!k || v === undefined) {
+                    throw new Error(`[ENV-X] Invalid map entry: "${pair}"`);
+                }
+                map.set(k.trim(), v.trim());
+            }
 
             return map as unknown as T;
+        }
+
         case 'string':
-        default: return raw as unknown as T;
+        default:
+            return value as unknown as T;
     }
 }
