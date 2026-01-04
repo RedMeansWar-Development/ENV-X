@@ -1,14 +1,18 @@
 {
   "name": "env-x",
   "version": "1.0.0",
-  "description": "TypeScript config service with type-safe env access, JSON/array/map parsing, schema validation, transforms, hot-reload, and CLI. (inspired by NestJS Config Service)",
+  "description": "TypeScript config service with type-safe env access, JSON/array/map parsing, schema validation, transforms, hot-reload, and CLI.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
     "env-x": "dist/cli.js"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
+    "prepare": "npm run build",
     "start": "node dist/cli.js",
     "watch": "tsc -w"
   },
@@ -27,14 +31,12 @@
     "type": "git",
     "url": "git+https://github.com/RedMeansWar-Development/ENV-X.git"
   },
-  "bugs": {
-    "url": "https://github.com/RedMeansWar-Development/ENV-X/issues"
+  "dependencies": {
+    "dotenv": "^17.2.3"
   },
-  "homepage": "https://github.com/RedMeansWar-Development/ENV-X#readme",
   "devDependencies": {
     "@types/dotenv": "^6.1.1",
     "@types/node": "^25.0.3",
-    "dotenv": "^17.2.3",
     "typescript": "^5.9.3"
   }
 }
